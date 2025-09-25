@@ -14,12 +14,12 @@ function Uploads() {
     }
 
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("file", file); 
     formData.append("title", title);
     formData.append("description", description);
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/uploads", {
+      const res = await fetch("http://127.0.0.1:5000/upload", {
         method: "POST",
         body: formData,
       });
