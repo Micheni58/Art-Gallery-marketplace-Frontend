@@ -1,7 +1,7 @@
 function Footer(){
     return(
         <>
-        <div className="bg-gray-100  w-full fixed bottom-0 pb-5">
+        <div className="bg-gray-100  w-full  pb-5">
         <section className="flex justify-center p-10 gap-20">
 
             <div className="w-1/3">
