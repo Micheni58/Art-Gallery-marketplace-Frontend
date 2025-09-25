@@ -4,6 +4,8 @@ import './index.css'
 import Navbar from './Components/Navbar'
 import Footer from './Components/Footer'
 import routes from './routes/routes'
+import Purchase from './mypages/Purchase'
+import MyCollection from "./mypages/MyCollection"
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
@@ -19,6 +21,8 @@ function App() {
             {routes.map((route, index) => (
               <Route key={index} path={route.path} element={route.element} />
             ))}
+            <Route path="/purchase" element={<Purchase />} />
+            <Route path="/mycollection" element={<MyCollection />} /> 
           </Routes>
         </main>
 
