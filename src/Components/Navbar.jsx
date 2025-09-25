@@ -17,6 +17,7 @@ function Navbar() {
         <div className="flex gap-8 text-gray-700 font-medium">
           <NavLink to="/" className="hover:text-pink-500 transition">Home</NavLink>
           <NavLink to="/artworks" className="hover:text-purple-500 transition">Artworks</NavLink>
+          <NavLink to="/artists" className="hover:text-purple-500 transition">Artists</NavLink>
           <NavLink to="/my-collection" className="hover:text-purple-500 transition">My Collection</NavLink>
           <NavLink to="/purchases" className="hover:text-purple-500 transition">Purchase</NavLink>
           <NavLink to="/uploads" className="hover:text-purple-500 transition">Upload</NavLink>
