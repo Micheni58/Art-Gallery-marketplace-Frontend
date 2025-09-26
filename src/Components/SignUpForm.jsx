@@ -2,13 +2,17 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function SignupForm() {
-  const [formData, setFormData] = useState({ userName: "", email: "", password: "" });
+  const [formData, setFormData] = useState({
+    userName: "",
+    email: "",
+    password: "",
+    role: "user",
+  });
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-
   useEffect(() => {
-    setFormData({ userName: "", email: "", password: "" });
+    setFormData({ userName: "", email: "", password: "", role: "user" });
     setError("");
   }, []);
 
@@ -32,7 +36,7 @@ export default function SignupForm() {
       if (!res.ok) {
         setError(data.error || "Signup failed");
       } else {
-        alert("Signup successful! You can now login.");
+        alert("Signup successful! Please log in.");
         navigate("/login");
       }
     } catch (err) {
@@ -43,10 +47,12 @@ export default function SignupForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 p-6">
-      <div className="p-8 w-full max-w-md border rounded shadow bg-white">
+      <div className="p-8 w-full max-w-md border rounded shadow bg-white/80 backdrop-blur-md">
         <div className="text-center mb-6">
           <h1 className="font-bold text-2xl text-gray-800">Signup</h1>
-          <p className="text-gray-600">Create your account to join the Art Gallery Marketplace!</p>
+          <p className="text-gray-600">
+            Create your account to join the Art Gallery Marketplace!
+          </p>
           {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
 
@@ -78,6 +84,15 @@ export default function SignupForm() {
             className="w-full h-10 px-3 mt-1 bg-gray-100 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
             required
           />
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="w-full h-10 px-3 mt-1 bg-gray-100 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          >
+            <option value="user">User</option>
+            <option value="artist">Artist</option>
+          </select>
           <button
             type="submit"
             className="w-full bg-blue-400 text-white font-semibold py-2 rounded-lg hover:bg-purple-400 transition active:ring-2 ring-purple-500"

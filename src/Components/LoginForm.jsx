@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  // Reset form on component mount
   useEffect(() => {
     setFormData({ email: "", password: "" });
     setError("");
@@ -25,15 +26,15 @@ export default function LoginForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-        credentials: "include", // important for session cookie
+        credentials: "include",
       });
 
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "Login failed");
       } else {
-        alert(data.message);
-        navigate("/"); // redirect to homepage
+        login(data); // Save user data to context
+        navigate("/artworks"); // Redirect to artworks page
       }
     } catch (err) {
       console.error(err);
@@ -43,10 +44,12 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 p-6">
-      <div className="p-8 w-full max-w-md border rounded shadow bg-white">
+      <div className="p-8 w-full max-w-md border rounded shadow bg-white/80 backdrop-blur-md">
         <div className="text-center mb-6">
           <h1 className="font-bold text-2xl text-gray-800">Login</h1>
-          <p className="text-gray-600">Access your account to continue exploring artworks!</p>
+          <p className="text-gray-600">
+            Access your account to continue exploring artworks!
+          </p>
           {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
 
