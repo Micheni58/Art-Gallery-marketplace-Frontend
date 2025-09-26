@@ -23,13 +23,26 @@ function ArtworkDetail() {
       });
   }, [id]);
 
-  const handleBuy = () => {
-    const user = localStorage.getItem("user"); // or your auth context
-    if (user) {
-      navigate(`/purchases/${id}`);
-    } else {
+  const handleAddToCart = () => {
+    const user = localStorage.getItem("user"); 
+    if (!user) {
       navigate("/login");
+      return;
     }
+
+    const userId = 1; 
+
+    fetch("http://127.0.0.1:5000/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, artwork_id: art.id }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        navigate("/purchases"); 
+      })
+      .catch((err) => console.error("Error adding to cart:", err));
   };
 
   if (loading) return <p className="text-center mt-10">Loading artwork...</p>;
@@ -73,13 +86,13 @@ function ArtworkDetail() {
             ← Back
           </button>
 
-          {/* Buy Button */}
+          {/* Add to Cart Button */}
           {!art.sold && (
             <button
-              onClick={handleBuy}
+              onClick={handleAddToCart}
               className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md shadow-md"
             >
-              Buy
+              Add to Cart
             </button>
           )}
         </div>
@@ -87,7 +100,7 @@ function ArtworkDetail() {
         {/* Footer Note */}
         <div className="text-center mt-6">
           <p className="text-gray-500 text-sm">
-            Interested? Sign up or log in to purchase or upload your own
+            Interested? Sign up or log in to add to cart or upload your own
             artwork.
           </p>
         </div>
