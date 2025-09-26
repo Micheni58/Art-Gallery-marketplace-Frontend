@@ -1,51 +1,103 @@
-import { NavLink } from "react-router-dom"
-import { useState } from "react"
+import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  // 🔹 Replace this with actual auth logic (context, redux, etc.)
-  const [user, setUser] = useState(null) // null = not logged in
+  const { user, logout } = useAuth();
 
   return (
-    <div className="bg-white/60 backdrop-blur-md sticky top-0 z-40 shadow-md">
-      <nav className="flex items-center justify-between px-8 py-4">
-
+    <div className="bg-white/30 backdrop-blur-md sticky top-0 z-50 shadow-lg">
+      <nav className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
+        {/* Logo */}
         <span className="flex items-center gap-2 text-xl font-bold text-gray-800">
-          <i className="fa-solid fa-palette text-purple-400"></i>
+          <i className="fa-solid fa-palette text-purple-500"></i>
           <h1>Artisan</h1>
         </span>
 
+        {/* Links */}
         <div className="flex gap-8 text-gray-700 font-medium">
-          <NavLink to="/" className="hover:text-pink-500 transition">Home</NavLink>
-          <NavLink to="/artworks" className="hover:text-purple-500 transition">Artworks</NavLink>
-          <NavLink to="/artists" className="hover:text-purple-500 transition">Artists</NavLink>
-          <NavLink to="/my-collection" className="hover:text-purple-500 transition">My Collection</NavLink>
-          <NavLink to="/purchases" className="hover:text-purple-500 transition">Purchase</NavLink>
-          <NavLink to="/uploads" className="hover:text-purple-500 transition">Upload</NavLink>
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `hover:text-purple-500 transition ${isActive ? "text-purple-500 font-semibold" : ""}`
+            }
+          >
+            Home
+          </NavLink>
+          <NavLink
+            to="/artworks"
+            className={({ isActive }) =>
+              `hover:text-purple-500 transition ${isActive ? "text-purple-500 font-semibold" : ""}`
+            }
+          >
+            Artworks
+          </NavLink>
+          <NavLink
+            to="/artists"
+            className={({ isActive }) =>
+              `hover:text-purple-500 transition ${isActive ? "text-purple-500 font-semibold" : ""}`
+            }
+          >
+            Artists
+          </NavLink>
+
+          {user && (
+            <>
+              <NavLink
+                to="/my-collection"
+                className={({ isActive }) =>
+                  `hover:text-purple-500 transition ${isActive ? "text-purple-500 font-semibold" : ""}`
+                }
+              >
+                My Collection
+              </NavLink>
+              <NavLink
+                to="/purchases"
+                className={({ isActive }) =>
+                  `hover:text-purple-500 transition ${isActive ? "text-purple-500 font-semibold" : ""}`
+                }
+              >
+                Purchases
+              </NavLink>
+            </>
+          )}
+
+          {user?.role === "artist" && (
+            <NavLink
+              to="/uploads"
+              className={({ isActive }) =>
+                `hover:text-purple-500 transition ${isActive ? "text-purple-500 font-semibold" : ""}`
+              }
+            >
+              Upload
+            </NavLink>
+          )}
         </div>
 
-        {/* Right Side Auth Links */}
-        <div className="flex gap-4">
+        {/* Auth Section */}
+        <div className="flex gap-4 items-center">
           {!user ? (
             <>
               <NavLink
                 to="/login"
-                className="px-4 py-2 rounded-lg bg-purple-400 text-white hover:bg-pink-600 transition"
+                className="px-4 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition active:ring-2 ring-purple-400"
               >
                 Login
               </NavLink>
               <NavLink
                 to="/signup"
-                className="p-2 rounded-lg border border-purple-400 text-purple-500 hover:bg-purple-500 hover:text-white transition"
+                className="px-4 py-2 rounded-lg border border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white transition active:ring-2 ring-purple-400"
               >
                 Sign Up
               </NavLink>
             </>
           ) : (
             <>
-              <span className="text-gray-600">Welcome, {user.name}</span>
+              <span className="text-gray-600 font-medium">
+                Welcome, {user.userName || "User"}
+              </span>
               <button
-                onClick={() => setUser(null)}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition"
+                onClick={logout}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition active:ring-2 ring-red-400"
               >
                 Logout
               </button>
@@ -54,7 +106,7 @@ function Navbar() {
         </div>
       </nav>
     </div>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;
