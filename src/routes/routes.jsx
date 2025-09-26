@@ -7,6 +7,8 @@ import ArtistDetail from "../pages/ArtistDetails";
 import Uploads from "../pages/Uploads";
 import MyCollection from "../pages/MyCollection";
 import Purchase from "../pages/Purchase";
+import SignupForm from "../Components/SignUpForm";
+import LoginForm from "../Components/LoginForm";
 
 const routes = [
     {path:"/", element:<Home />},
@@ -16,9 +18,10 @@ const routes = [
     {path: "/artists/:id", element: <ArtistDetail /> },
     {path:"/uploads", element:<Uploads />},
 
-    // {path:"/login", element:<Login />},
+
+    {path:"/login", element:<LoginForm />},
     {path:"/my-collection", element:<MyCollection />},
-    // {path:"/signup", element:<Signup />}
+    {path:"/signup", element:<SignupForm />},
     { path: "/purchases", element: <Purchase /> }
 
 ]
