@@ -23,6 +23,12 @@ function ArtistDetail() {
       });
   }, [id]);
 
+  // ✅ Fix image handling for seeded vs uploaded vs missing
+  const getImageSrc = (url, placeholder = "https://via.placeholder.com/300") => {
+    if (!url) return placeholder;
+    return url.startsWith("http") ? url : `http://127.0.0.1:5000${url}`;
+  };
+
   if (loading) return <p className="text-center mt-10">Loading artist...</p>;
   if (!artist) return <p className="text-center mt-10">Artist not found.</p>;
 
@@ -32,19 +38,26 @@ function ArtistDetail() {
         {/* Profile */}
         <div className="flex flex-col md:flex-row items-center gap-6">
           <img
-            src={artist.profile_pic || "https://via.placeholder.com/200?text=Artist"}
+            src={getImageSrc(
+              artist.profile_pic,
+              "https://via.placeholder.com/200?text=Artist"
+            )}
             alt={artist.name}
             className="rounded-full w-40 h-40 object-cover border-4 border-blue-400 shadow-lg"
           />
           <div>
             <h1 className="text-3xl font-bold text-gray-800">{artist.name}</h1>
-            <p className="text-gray-600 mt-2">{artist.bio || "No bio available."}</p>
+            <p className="text-gray-600 mt-2">
+              {artist.bio || "No bio available."}
+            </p>
           </div>
         </div>
 
         {/* Artworks */}
         <div className="mt-10">
-          <h2 className="text-2xl font-semibold mb-4">Artworks by {artist.name}</h2>
+          <h2 className="text-2xl font-semibold mb-4">
+            Artworks by {artist.name}
+          </h2>
           {artist.artworks && artist.artworks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {artist.artworks.map((art) => (
@@ -53,9 +66,12 @@ function ArtistDetail() {
                   className="bg-white/60 shadow-md rounded-lg overflow-hidden hover:shadow-lg transition"
                 >
                   <img
-                    src={art.image_url || "https://via.placeholder.com/300"}
+                    src={getImageSrc(art.image_url)}
                     alt={art.title}
                     className="w-full h-48 object-cover"
+                    onError={(e) =>
+                      (e.target.src = "https://via.placeholder.com/300")
+                    }
                   />
                   <div className="p-4">
                     <h3 className="font-bold">{art.title}</h3>

@@ -24,13 +24,13 @@ function ArtworkDetail() {
   }, [id]);
 
   const handleAddToCart = () => {
-    const user = localStorage.getItem("user"); 
+    const user = localStorage.getItem("user");
     if (!user) {
       navigate("/login");
       return;
     }
 
-    const userId = 1; 
+    const userId = 1; // TODO: replace with logged-in user's id
 
     fetch("http://127.0.0.1:5000/cart", {
       method: "POST",
@@ -40,9 +40,15 @@ function ArtworkDetail() {
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
-        navigate("/purchases"); 
+        navigate("/purchases");
       })
       .catch((err) => console.error("Error adding to cart:", err));
+  };
+
+  // ✅ Fix image handling (seeded vs uploaded vs missing)
+  const getImageSrc = (url) => {
+    if (!url) return "https://via.placeholder.com/600";
+    return url.startsWith("http") ? url : `http://127.0.0.1:5000${url}`;
   };
 
   if (loading) return <p className="text-center mt-10">Loading artwork...</p>;
@@ -53,9 +59,10 @@ function ArtworkDetail() {
       <div className="bg-white/70 backdrop-blur-md shadow-2xl rounded-2xl p-8 w-full max-w-3xl relative">
         {/* Artwork Image */}
         <img
-          src={art.image_url || "https://via.placeholder.com/600"}
+          src={getImageSrc(art.image_url)}
           alt={art.title}
           className="rounded-xl w-full h-[400px] object-cover shadow-md mb-6 transition-transform duration-500 hover:scale-105"
+          onError={(e) => (e.target.src = "https://via.placeholder.com/600")}
         />
 
         {/* Artwork Info */}
@@ -65,6 +72,14 @@ function ArtworkDetail() {
           {art.artist?.name || "Unknown Artist"}
         </p>
         <p className="text-lg text-green-700 font-bold mb-2">${art.price}</p>
+
+        {/* ✅ Show Description */}
+        {art.description && (
+          <p className="text-md text-gray-800 mb-4 leading-relaxed">
+            {art.description}
+          </p>
+        )}
+
         <p className="text-sm text-gray-600 mb-6">
           Status:{" "}
           <span
