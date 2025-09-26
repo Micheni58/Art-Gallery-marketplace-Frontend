@@ -12,14 +12,13 @@ function App() {
       <div className="flex flex-col min-h-screen">
         {/* Navbar at top */}
         <Navbar />
-
+      
         {/* Main content grows to fill space */}
         <main className="flex-grow">
           <Routes>
             {routes.map((route, index) => (
               <Route key={index} path={route.path} element={route.element} />
             ))}
- 
           </Routes>
         </main>
 
