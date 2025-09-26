@@ -23,13 +23,32 @@ function ArtworkDetail() {
       });
   }, [id]);
 
-  const handleBuy = () => {
-    const user = localStorage.getItem("user"); // or your auth context
-    if (user) {
-      navigate(`/purchases/${id}`);
-    } else {
+  const handleAddToCart = () => {
+    const user = localStorage.getItem("user");
+    if (!user) {
       navigate("/login");
+      return;
     }
+
+    const userId = 1; // TODO: replace with logged-in user's id
+
+    fetch("http://127.0.0.1:5000/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, artwork_id: art.id }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        navigate("/purchases");
+      })
+      .catch((err) => console.error("Error adding to cart:", err));
+  };
+
+  // ✅ Fix image handling (seeded vs uploaded vs missing)
+  const getImageSrc = (url) => {
+    if (!url) return "https://via.placeholder.com/600";
+    return url.startsWith("http") ? url : `http://127.0.0.1:5000${url}`;
   };
 
   if (loading) return <p className="text-center mt-10">Loading artwork...</p>;
@@ -40,9 +59,10 @@ function ArtworkDetail() {
       <div className="bg-white/70 backdrop-blur-md shadow-2xl rounded-2xl p-8 w-full max-w-3xl relative">
         {/* Artwork Image */}
         <img
-          src={art.image_url || "https://via.placeholder.com/600"}
+          src={getImageSrc(art.image_url)}
           alt={art.title}
           className="rounded-xl w-full h-[400px] object-cover shadow-md mb-6 transition-transform duration-500 hover:scale-105"
+          onError={(e) => (e.target.src = "https://via.placeholder.com/600")}
         />
 
         {/* Artwork Info */}
@@ -52,6 +72,14 @@ function ArtworkDetail() {
           {art.artist?.name || "Unknown Artist"}
         </p>
         <p className="text-lg text-green-700 font-bold mb-2">${art.price}</p>
+
+        {/* ✅ Show Description */}
+        {art.description && (
+          <p className="text-md text-gray-800 mb-4 leading-relaxed">
+            {art.description}
+          </p>
+        )}
+
         <p className="text-sm text-gray-600 mb-6">
           Status:{" "}
           <span
@@ -73,13 +101,13 @@ function ArtworkDetail() {
             ← Back
           </button>
 
-          {/* Buy Button */}
+          {/* Add to Cart Button */}
           {!art.sold && (
             <button
-              onClick={handleBuy}
+              onClick={handleAddToCart}
               className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md shadow-md"
             >
-              Buy
+              Add to Cart
             </button>
           )}
         </div>
@@ -87,7 +115,7 @@ function ArtworkDetail() {
         {/* Footer Note */}
         <div className="text-center mt-6">
           <p className="text-gray-500 text-sm">
-            Interested? Sign up or log in to purchase or upload your own
+            Interested? Sign up or log in to add to cart or upload your own
             artwork.
           </p>
         </div>
