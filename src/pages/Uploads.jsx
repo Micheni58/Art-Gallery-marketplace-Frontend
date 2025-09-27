@@ -21,7 +21,7 @@ function Uploads() {
     formData.append("file", file);
 
     try {
-      const uploadRes = await fetch("http://127.0.0.1:5000/upload", {
+      const uploadRes = await fetch("https://art-gallery-marketplace-backend.onrender.com/upload", {
         method: "POST",
         body: formData,
       });
@@ -43,7 +43,7 @@ function Uploads() {
         image_url,
       };
 
-      const artworkRes = await fetch("http://127.0.0.1:5000/artworks", {
+      const artworkRes = await fetch("https://art-gallery-marketplace-backend.onrender.com/artworks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(artworkData),

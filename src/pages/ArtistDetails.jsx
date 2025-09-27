@@ -8,7 +8,7 @@ function ArtistDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/artists/${id}`)
+    fetch(`https://art-gallery-marketplace-backend.onrender.com/artists/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch artist");
         return res.json();
@@ -26,7 +26,7 @@ function ArtistDetail() {
   // ✅ Fix image handling for seeded vs uploaded vs missing
   const getImageSrc = (url, placeholder = "https://via.placeholder.com/300") => {
     if (!url) return placeholder;
-    return url.startsWith("http") ? url : `http://127.0.0.1:5000${url}`;
+    return url.startsWith("http") ? url : `https://art-gallery-marketplace-backend.onrender.com${url}`;
   };
 
   if (loading) return <p className="text-center mt-10">Loading artist...</p>;

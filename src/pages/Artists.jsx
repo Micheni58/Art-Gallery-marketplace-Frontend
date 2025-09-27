@@ -5,7 +5,7 @@ function Artists() {
   const [artists, setArtists] = useState([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/artists")
+    fetch("https://art-gallery-marketplace-backend.onrender.com/artists")
       .then((res) => res.json())
       .then((data) => setArtists(data))
       .catch((err) => console.error("Error fetching artists:", err));

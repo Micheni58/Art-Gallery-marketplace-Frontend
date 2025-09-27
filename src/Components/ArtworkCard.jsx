@@ -6,7 +6,7 @@ function ArtworkCard({ art }) {
   // Helper to handle both local and external images
   const getImageSrc = (url) => {
     if (!url) return "https://via.placeholder.com/200";
-    return url.startsWith("http") ? url : `http://127.0.0.1:5000${url}`;
+    return url.startsWith("http") ? url : `https://art-gallery-marketplace-backend.onrender.com${url}`;
   };
 
   return (

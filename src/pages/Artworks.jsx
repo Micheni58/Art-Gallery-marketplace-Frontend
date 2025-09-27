@@ -5,7 +5,7 @@ function Artworks() {
   const [artworks, setArtworks] = useState([])
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/artworks")
+    fetch("https://art-gallery-marketplace-backend.onrender.com/artworks")
       .then((res) => res.json())
       .then((data) => setArtworks(data))
       .catch((err) => console.error("Error fetching artworks:", err))

@@ -8,7 +8,7 @@ function ArtworkDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/artworks/${id}`)
+    fetch(`https://art-gallery-marketplace-backend.onrender.com/artworks/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch artwork");
         return res.json();
@@ -32,7 +32,7 @@ function ArtworkDetail() {
 
     const userId = 1; // TODO: replace with logged-in user's id
 
-    fetch("http://127.0.0.1:5000/cart", {
+    fetch("https://art-gallery-marketplace-backend.onrender.com/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId, artwork_id: art.id }),
@@ -48,7 +48,7 @@ function ArtworkDetail() {
   // ✅ Fix image handling (seeded vs uploaded vs missing)
   const getImageSrc = (url) => {
     if (!url) return "https://via.placeholder.com/600";
-    return url.startsWith("http") ? url : `http://127.0.0.1:5000${url}`;
+    return url.startsWith("http") ? url : `https://art-gallery-marketplace-backend.onrender.com${url}`;
   };
 
   if (loading) return <p className="text-center mt-10">Loading artwork...</p>;

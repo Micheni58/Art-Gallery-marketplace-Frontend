@@ -9,7 +9,7 @@ export default function Home() {
     // Fetch some artworks to show on home page
     const fetchArtworks = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:5000/artworks");
+        const res = await fetch("https://art-gallery-marketplace-backend.onrender.com/artworks");
         const data = await res.json();
         setArtworks(data.slice(0, 6)); // show first 6 artworks
       } catch (err) {
@@ -21,7 +21,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen w-full">
-      {/* Hero Section */}
+      
       <div className="flex flex-col items-center justify-center text-center min-h-[80vh] relative overflow-hidden">
         <div className="absolute inset-0 animate-gradient bg-gradient-to-r from-black via-blue-300 to-gray-400 bg-[length:400%_400%]"></div>
         <div className="relative z-10 px-4">

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-const API = "http://127.0.0.1:5000";
+const API = "https://art-gallery-marketplace-backend.onrender.com";
 
 export default function Purchase() {
   const [searchParams] = useSearchParams();
