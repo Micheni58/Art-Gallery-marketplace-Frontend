@@ -1,12 +1,65 @@
-# React + Vite
+# Art Gallery Marketplace (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Live Site](https://img.shields.io/badge/Live-Web-blue)](https://art-gallery-marketplace-frontend.vercel.app/)  
 
-Currently, two official plugins are available:
+A modern frontend application for an art gallery marketplace — browse, buy, and manage artworks in a user-friendly UI.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Table of Contents
 
-## Expanding the ESLint configuration
+- [Features](#features)  
+- [Tech Stack](#tech-stack)  
+- [Demo / Screenshots](#demo--screenshots)  
+- [Getting Started](#getting-started)  
+  - [Prerequisites](#prerequisites)  
+  - [Installation](#installation)  
+  - [Running Locally](#running-locally)  
+  - [Building for Production](#building-for-production)  
+- [Environment Variables](#environment-variables)  
+- [Folder Structure](#folder-structure)  
+- [Scripts](#scripts)  
+- [Contributing](#contributing)  
+- [License](#license)  
+- [Contact](#contact)  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Features
+
+- Browse art collections, categories, individual artworks  
+- Detailed artwork pages  
+- User authentication (sign up, sign in)  
+- Shopping cart / checkout (if applicable)  
+- User dashboard (purchase history, uploads, favorites)  
+- Admin / curator interface (manage listings, approve artworks)  
+- Responsive, mobile-first UI  
+- Search, filtering, sorting  
+- Integration with backend APIs  
+- Optimized asset loading, lazy loading, caching  
+
+## Tech Stack
+
+- Framework / Library: React / Next.js / Vue / etc.  
+- UI Library / CSS: Tailwind CSS / Material UI / Styled Components / SCSS  
+- State Management: Redux / Zustand / Context API / Vuex  
+- HTTP / API client: Axios / fetch  
+- Routing: React Router / Next.js routing  
+- Build Tool / Bundler: Vite / Webpack / Next.js built-in  
+- Hosting / Deployment: Vercel (frontend)  
+
+## Demo / Screenshots
+
+*(Insert screenshots or animated GIFs showing main screens: homepage, gallery, product page, user dashboard, etc.)*
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (>= version x.x.x)  
+- npm or yarn  
+- (Optional) .env file with environment variables  
+
+### Installation
+
+```bash
+git clone <repository-url>
+cd art-gallery-marketplace-frontend
+npm install
+
