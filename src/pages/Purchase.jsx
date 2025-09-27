@@ -83,7 +83,7 @@ export default function Purchase() {
     }
     if (!artwork) return;
     try {
-      const res = await fetch(`${API}/purchases`, {
+      const res = await fetch(`${API}/purchase`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -139,129 +139,147 @@ export default function Purchase() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto mt-10 p-8 bg-gray-50 rounded-xl shadow-md">
-      <h1 className="text-3xl font-bold mb-6 text-center">Complete Your Purchase</h1>
+    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow">
+      <h1 className="text-3xl font-bold mb-3">Complete Your Purchase</h1>
+      <p className="text-gray-700 mb-6">
+        You're just one step away from owning this beautiful artwork
+      </p>
 
       {!artwork ? (
-        <p className="text-center">Loading artwork...</p>
+        <p>Loading artwork...</p>
       ) : (
-        <div className="grid md:grid-cols-2 gap-8">
-          
-          <div className="bg-white p-6 rounded-lg shadow">
+        <>
+          {/* Artwork Details */}
+          <div className="flex gap-6 mb-6">
             <img
               src={artwork.image_url}
               alt={artwork.title}
-              onError={(e) => (e.target.src = "/placeholder.png")}
-              className="w-full h-64 object-cover rounded-lg mb-4"
+              className="w-64 h-48 object-cover rounded"
             />
-            <h2 className="text-2xl font-semibold">{artwork.title}</h2>
-            <p className="text-gray-600">by {artwork.artist?.name ?? "Unknown"}</p>
-            <p className="text-xl font-bold mt-2">${artwork.price}</p>
-            <p className="text-green-600 mt-2">✔ Ready for Purchase</p>
+            <div>
+              <h2 className="text-2xl font-semibold">{artwork.title}</h2>
+              <p className="text-gray-600">by {artwork.artist?.name ?? "Unknown"}</p>
+              <p className="text-xl font-bold mt-2">${artwork.price}</p>
+              <p className="text-green-600 mt-2">Ready for Purchase</p>
+            </div>
           </div>
 
-      
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-4">Purchase Information</h3>
-            <div className="space-y-2 mb-4">
-              <p>👤 Buyer: <strong>User #{userId}</strong></p>
-              <p>🩻 Artwork: <strong>{artwork.title}</strong></p>
-              <p>💲 Price: <strong>${artwork.price}</strong></p>
-            </div>
+          <p className="mb-6 text-gray-700">
+            Once purchased, the artwork will be added to your collection and
+            you'll receive a certificate of authenticity.
+          </p>
 
-            <div className="mb-6">
-              <label className="block mb-2 font-medium"> 🪪 Select payment method</label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full border p-2 rounded"
-              >
-                <option value="">Please select</option>
-                <option value="credit">Credit Card</option>
-                <option value="paypal">PayPal</option>
-                <option value="mpesa">M-Pesa</option>
-              </select>
-            </div>
+          {/* Purchase Information */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-2">Purchase Information</h3>
+            <p>
+              Buyer: <strong>User #{userId}</strong>
+            </p>
+            <p>
+              Artwork: <strong>{artwork.title}</strong>
+            </p>
+            <p>
+              Price: <strong>${artwork.price}</strong>
+            </p>
+          </div>
 
+          {/* Payment Method */}
+          <div className="mb-6">
+            <label className="block mb-2 font-medium">Select payment method</label>
+            <select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              className="w-full border p-2 rounded"
+            >
+              <option value="">Please select a payment method</option>
+              <option value="credit">Credit Card</option>
+              <option value="paypal">PayPal</option>
+              <option value="mpesa">M-Pesa</option>
+            </select>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3 mb-6">
+            <button
+              onClick={handleAddToCart}
+              className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700"
+            >
+              Add to Cart
+            </button>
             <button
               onClick={handleConfirmPurchaseImmediate}
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+              className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
             >
               Confirm Purchase • ${artwork.price}
             </button>
-
-            <p className="text-sm text-gray-500 mt-4">
-              Note: Once purchased, the artwork will be added to your collection.
-              You will receive a digital certificate and shipping details within 24h.
-            </p>
           </div>
-        </div>
-      )}
 
-      {/* Cart Section */}
-      <div className="mt-10 bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">🛒 Your Cart</h3>
-        {cartItems.length === 0 ? (
-          <p className="text-gray-600">No items in cart yet.</p>
-        ) : (
-          <>
-            <ul className="space-y-3 mb-4">
-              {cartItems.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex justify-between items-center border p-3 rounded"
-                >
-                  <div>
-                    <div className="font-medium">{item.artwork.title}</div>
-                    <div className="text-sm text-gray-600">
-                      by {item.artwork.artist?.name ?? "Unknown"}
-                    </div>
-                    <div className="text-sm font-semibold">${item.artwork.price}</div>
-                  </div>
+          <p className="text-sm text-gray-500 mb-6">
+            Note: Once purchased, the artwork will be added to your collection.
+            You will receive a digital certificate and shipping information
+            within 24 hours.
+          </p>
+
+          {/* Cart Section */}
+          <div className="mt-8 border-t pt-4">
+            <h3 className="text-lg font-semibold mb-3">🛒 Cart</h3>
+            {cartItems.length === 0 ? (
+              <p className="text-gray-600">No items in cart yet.</p>
+            ) : (
+              <>
+                <ul className="space-y-2 mb-4">
+                  {cartItems.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex justify-between items-center border p-3 rounded"
+                    >
+                      <div>
+                        <div className="font-medium">{item.artwork.title}</div>
+                        <div className="text-sm text-gray-600">
+                          by {item.artwork.artist?.name ?? "Unknown"}
+                        </div>
+                        <div className="text-sm text-gray-800 font-semibold">
+                          ${item.artwork.price}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveCartItem(item.id)}
+                        className="text-sm text-red-600 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="flex items-center justify-between">
                   <button
-                    onClick={() => handleRemoveCartItem(item.id)}
-                    className="text-sm text-red-600 hover:underline"
+                    onClick={handleCheckoutCart}
+                    className="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700"
                   >
-                    Remove
+                    Checkout All
                   </button>
-                </li>
-              ))}
-            </ul>
+                  <div>
+                    <span className="font-semibold">Total: </span>
+                    <span className="text-lg">
+                      $
+                      {cartItems.reduce(
+                        (sum, it) => sum + (it.artwork?.price || 0),
+                        0
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
-            <div className="flex items-center justify-between">
-              <button
-                onClick={handleCheckoutCart}
-                className="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700"
-              >
-                Checkout All
-              </button>
-              <div>
-                <span className="font-semibold">Total: </span>
-                <span className="text-lg">
-                  $
-                  {cartItems
-                    .reduce((sum, it) => sum + (it.artwork?.price || 0), 0)
-                    .toFixed(2)}
-                </span>
-              </div>
+          {message && (
+            <div className="mt-4 text-center text-sm text-green-700">
+              {message}
             </div>
-          </>
-        )}
-      </div>
-
-      {/* Feedback message */}
-      {message && (
-        <div
-          className={`mt-6 text-center text-sm font-medium ${
-            message.startsWith("✅")
-              ? "text-green-700"
-              : message.startsWith("⚠️")
-              ? "text-yellow-600"
-              : "text-red-600"
-          }`}
-        >
-          {message}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
