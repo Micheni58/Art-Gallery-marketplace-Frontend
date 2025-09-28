@@ -1,4 +1,5 @@
 # Art Gallery Marketplace (Frontend)
+Backend_github_repo_URL: https://github.com/monica-njoki1/ART_Gallery_Marketplace-Backend.git
 
 Artisian_deployed_URL: (https://art-gallery-marketplace-frontend.vercel.app/)  
 
