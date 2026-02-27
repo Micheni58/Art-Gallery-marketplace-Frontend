@@ -26,10 +26,10 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center text-center min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] relative overflow-hidden">
         <div className="absolute inset-0 animate-gradient bg-gradient-to-r from-black via-blue-300 to-gray-400 bg-[length:400%_400%]"></div>
         <div className="relative z-10 px-4 sm:px-6 md:px-8 max-w-2xl">
-          <h1 className="text-white font-extrabold text-5xl sm:text-4xl md:text-6xl lg:text-7xl mb-4 sm:mb-6 leading-tight">
+          <h1 className="text-white font-extrabold text-3xl sm:text-4xl md:text-4xl lg:text-6xl mb-4 sm:mb-6 leading-tight">
             Discover<br />Exceptional Art
           </h1>
-          <p className="text-white text-sm sm:text-base md:text-lg lg:text-3xl mb-6 sm:mb-8 max-w-xl mx-auto leading-relaxed">
+          <p className="text-white text-sm sm:text-base md:text-lg lg:text-2xl mb-6 sm:mb-8 max-w-xl mx-auto leading-relaxed">
             Explore curated collections from emerging and established artists worldwide
           </p>
           <button
