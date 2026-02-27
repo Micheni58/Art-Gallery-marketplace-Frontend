@@ -10,29 +10,55 @@ function ArtworkCard({ art }) {
   };
 
   return (
-    <div className="bg-white/40 w-60 shadow-lg rounded-lg backdrop-blur-md overflow-hidden">
-      <div className="relative">
+    <div 
+      className="group relative bg-gray-800/80 backdrop-blur-md rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-2xl hover:scale-105 border border-gray-600 hover:border-blue-400"
+      onClick={() => navigate(`/artworks/${art.id}`)}
+    >
+      {/* Image Container */}
+      <div className="relative h-40 sm:h-48 overflow-hidden bg-gray-800/60">
         <img
           src={getImageSrc(art.image_url)}
           alt={art.title || "Untitled"}
-          className="rounded-t-lg w-full h-40 object-cover transition-transform duration-300 ease-in-out hover:scale-110"
-          onError={(e) => (e.target.src = "https://via.placeholder.com/200")} // fallback
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          onError={(e) => (e.target.src = "https://via.placeholder.com/400")} // fallback
         />
+        {/* Overlay on hover */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
-      <div className="p-3">
-        <p className="font-bold">{art.title || "Untitled"}</p>
-        <p className="text-gray-600">{art.artist?.name || "Unknown Artist"}</p>
-        <p className="text-green-800 font-bold">${art.price || "N/A"}</p>
-        <p
-          className={`font-semibold ${art.sold ? "text-red-600" : "text-green-600"}`}
-        >
-          {art.sold ? "Sold" : "Available"}
+      
+      {/* Content */}
+      <div className="p-3 sm:p-4">
+        {/* Title */}
+        <h3 className="font-bold text-sm sm:text-base text-white line-clamp-2 mb-1">
+          {art.title || "Untitled"}
+        </h3>
+        
+        {/* Artist Name */}
+        <p className="text-xs sm:text-sm text-gray-400 mb-2 truncate">
+          {art.artist?.name || "Unknown Artist"}
         </p>
+        
+        {/* Price and Status */}
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-blue-400 font-bold text-sm sm:text-base">
+            ${art.price || "N/A"}
+          </p>
+          <span
+            className={`text-xs font-semibold px-2 py-1 rounded-full ${
+              art.sold 
+                ? "bg-red-500/30 text-red-200" 
+                : "bg-green-500/30 text-green-200"
+            }`}
+          >
+            {art.sold ? "Sold" : "Available"}
+          </span>
+        </div>
+        
+        {/* View Button */}
         <button
-          onClick={() => navigate(`/artworks/${art.id}`)}
-          className="w-full bg-blue-400 active:ring-2 ring-blue-500 rounded-sm mt-2 text-white py-1 hover:bg-blue-500"
+          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 active:ring-2 ring-blue-400 rounded-lg text-white font-semibold py-2 transition-all duration-200 text-sm sm:text-base"
         >
-          View
+          View Details
         </button>
       </div>
     </div>
