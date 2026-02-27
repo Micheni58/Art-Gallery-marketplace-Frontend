@@ -1,4 +1,11 @@
+import { useAuth } from "../context/AuthContext";
+
 function Footer() {
+  const { user } = useAuth();
+
+  // Only render footer when user is not logged in
+  if (user) return null;
+
   return (
     <>
       <div className="relative w-full mt-12 md:mt-16 overflow-hidden">
