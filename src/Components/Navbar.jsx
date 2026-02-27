@@ -25,14 +25,16 @@ function Navbar() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex gap-8 text-gray-700 font-medium">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `hover:text-purple-500 transition ${isActive ? "text-purple-500 font-semibold" : ""}`
-            }
-          >
-            Home
-          </NavLink>
+          {!user && (
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `hover:text-purple-500 transition ${isActive ? "text-purple-500 font-semibold" : ""}`
+              }
+            >
+              Home
+            </NavLink>
+          )}
           <NavLink
             to="/artworks"
             className={({ isActive }) =>
@@ -129,15 +131,17 @@ function Navbar() {
         <div className="md:hidden bg-white/40 backdrop-blur-md border-t border-white/20 animate-in fade-in slide-in-from-top-2">
           <div className="px-4 py-3 max-w-7xl mx-auto space-y-2">
             {/* Mobile Links */}
-            <NavLink
-              to="/"
-              onClick={closeMenu}
-              className={({ isActive }) =>
-                `block px-4 py-2 rounded-lg transition ${isActive ? "bg-purple-500 text-white font-semibold" : "text-gray-700 hover:bg-white/20"}`
-              }
-            >
-              Home
-            </NavLink>
+            {!user && (
+              <NavLink
+                to="/"
+                onClick={closeMenu}
+                className={({ isActive }) =>
+                  `block px-4 py-2 rounded-lg transition ${isActive ? "bg-purple-500 text-white font-semibold" : "text-gray-700 hover:bg-white/20"}`
+                }
+              >
+                Home
+              </NavLink>
+            )}
             <NavLink
               to="/artworks"
               onClick={closeMenu}
