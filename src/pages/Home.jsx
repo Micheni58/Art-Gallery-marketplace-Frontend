@@ -22,18 +22,19 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full">
       
-      <div className="flex flex-col items-center justify-center text-center min-h-[80vh] relative overflow-hidden">
+      {/* Hero Section */}
+      <div className="flex flex-col items-center justify-center text-center min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] relative overflow-hidden">
         <div className="absolute inset-0 animate-gradient bg-gradient-to-r from-black via-blue-300 to-gray-400 bg-[length:400%_400%]"></div>
-        <div className="relative z-10 px-4">
-          <h1 className="text-white font-extrabold text-6xl md:text-7xl mb-6">
+        <div className="relative z-10 px-4 sm:px-6 md:px-8 max-w-2xl">
+          <h1 className="text-white font-extrabold text-5xl sm:text-4xl md:text-6xl lg:text-7xl mb-4 sm:mb-6 leading-tight">
             Discover<br />Exceptional Art
           </h1>
-          <p className="text-white text-xl md:text-2xl mb-8 max-w-xl mx-auto">
+          <p className="text-white text-sm sm:text-base md:text-lg lg:text-3xl mb-6 sm:mb-8 max-w-xl mx-auto leading-relaxed">
             Explore curated collections from emerging and established artists worldwide
           </p>
           <button
             onClick={() => navigate("/artworks")}
-            className="w-full md:w-auto bg-blue-400 text-white font-semibold py-2 px-8 rounded-lg hover:bg-purple-400 transition duration-300 active:ring-2 ring-purple-500"
+            className="w-full sm:w-auto bg-blue-400 text-white font-semibold py-3 sm:py-2 px-6 sm:px-8 rounded-lg hover:bg-purple-400 transition duration-300 active:ring-2 ring-purple-500 text-sm sm:text-base"
           >
             Explore Artworks
           </button>
@@ -41,22 +42,25 @@ export default function Home() {
       </div>
 
       {/* Artworks Section */}
-      <div className="py-12 px-6 max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold mb-6 text-gray-800">Featured Artworks</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="py-8 sm:py-10 md:py-12 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 md:mb-8 text-gray-800">
+          Featured Artworks
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {artworks.map((art) => (
             <div
               key={art.id}
-              className="bg-white rounded-lg shadow overflow-hidden hover:scale-105 transform transition duration-300"
+              className="bg-white rounded-lg shadow overflow-hidden hover:scale-105 transform transition duration-300 cursor-pointer"
+              onClick={() => navigate(`/artwork/${art.id}`)}
             >
               <img
                 src={art.image_url || "https://via.placeholder.com/400"}
                 alt={art.title}
-                className="w-full h-64 object-cover"
+                className="w-full h-48 sm:h-56 md:h-64 object-cover"
               />
-              <div className="p-4">
-                <h3 className="font-semibold text-lg">{art.title}</h3>
-                <p className="text-gray-600 mt-1">${art.price}</p>
+              <div className="p-3 sm:p-4">
+                <h3 className="font-semibold text-base sm:text-lg text-gray-800">{art.title}</h3>
+                <p className="text-purple-600 font-bold mt-2 text-sm sm:text-base">${art.price}</p>
               </div>
             </div>
           ))}
