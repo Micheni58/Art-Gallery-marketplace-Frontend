@@ -1,61 +1,142 @@
 // src/pages/Purchase.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { usePaystackPayment } from "react-paystack";
 
 const API = "https://art-gallery-marketplace-backend.onrender.com";
+const PAYSTACK_PUBLIC_KEY = process.env.REACT_APP_PAYSTACK_PUBLIC_KEY;
 
+// ─── Helper: get logged-in user from localStorage ────────────────────────────
+function getUser() {
+  try {
+    return JSON.parse(localStorage.getItem("user"));
+  } catch {
+    return null;
+  }
+}
+
+// ─── Inner component that initialises Paystack per purchase ──────────────────
+function PaystackButton({ user, artwork, paymentMethod, onSuccess, onClose, disabled }) {
+  const config = {
+    reference: `art_${artwork.id}_${Date.now()}`,
+    email: user?.email ?? "guest@example.com",
+    amount: Math.round(artwork.price * 100), // Paystack expects kobo/cents
+    currency: "KES",
+    publicKey: PAYSTACK_PUBLIC_KEY,
+    metadata: {
+      custom_fields: [
+        { display_name: "Artwork", variable_name: "artwork_title", value: artwork.title },
+        { display_name: "Payment Method", variable_name: "payment_method", value: paymentMethod },
+      ],
+    },
+  };
+
+  const initializePayment = usePaystackPayment(config);
+
+  function handleClick() {
+    initializePayment({ onSuccess, onClose });
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={disabled}
+      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold
+                 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed
+                 transition-all duration-200 flex items-center justify-center gap-2"
+    >
+      <span>🔒</span>
+      <span>Pay KES {Number(artwork.price).toLocaleString()} via Paystack</span>
+    </button>
+  );
+}
+
+// ─── Main Purchase Component ──────────────────────────────────────────────────
 export default function Purchase() {
   const [searchParams] = useSearchParams();
   const artworkIdParam = searchParams.get("artworkId");
 
   const [artwork, setArtwork] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState({ text: "", type: "" }); // type: success | warning | error
   const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // TODO: replace with real logged-in user
-  const userId = 1;
+  const user = getUser(); // { id, name, email }
+  const userId = user?.id ?? 1; // fallback to 1 only if no auth yet
+
+  // ── Load artwork ────────────────────────────────────────────────────────────
+  const loadArtwork = useCallback(async () => {
+    try {
+      if (artworkIdParam) {
+        const res = await fetch(`${API}/artworks/${artworkIdParam}`);
+        if (res.ok) setArtwork(await res.json());
+      } else {
+        const res = await fetch(`${API}/artworks`);
+        const list = await res.json();
+        if (Array.isArray(list) && list.length > 0) setArtwork(list[0]);
+      }
+    } catch (err) {
+      console.error(err);
+      showMessage("Failed to load artwork.", "error");
+    }
+  }, [artworkIdParam]);
+
+  // ── Load cart ───────────────────────────────────────────────────────────────
+  const loadCart = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/cart/${userId}`);
+      setCartItems(res.ok ? await res.json() : []);
+    } catch {
+      setCartItems([]);
+    }
+  }, [userId]);
 
   useEffect(() => {
     loadArtwork();
     loadCart();
-    // eslint-disable-next-line
-  }, [artworkIdParam]);
+  }, [loadArtwork, loadCart]);
 
-  async function loadArtwork() {
-    try {
-      if (artworkIdParam) {
-        const res = await fetch(`${API}/artworks/${artworkIdParam}`);
-        if (res.ok) {
-          setArtwork(await res.json());
-        }
-      } else {
-        const res = await fetch(`${API}/artworks`);
-        const list = await res.json();
-        if (Array.isArray(list) && list.length > 0) {
-          setArtwork(list[0]);
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Failed to load artwork.");
-    }
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+  function showMessage(text, type = "error") {
+    setMessage({ text, type });
+    // Auto-clear after 6 seconds
+    setTimeout(() => setMessage({ text: "", type: "" }), 6000);
   }
 
-  async function loadCart() {
+  // ── After Paystack confirms payment on its side ─────────────────────────────
+  async function handlePaystackSuccess(transaction) {
+    setLoading(true);
     try {
-      const res = await fetch(`${API}/cart/${userId}`);
+      const res = await fetch(`${API}/purchases`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: userId,
+          artwork_id: artwork.id,
+          payment_method: paymentMethod,
+          payment_reference: transaction.reference, // verified by backend
+        }),
+      });
+      const data = await res.json();
       if (res.ok) {
-        setCartItems(await res.json());
+        showMessage("Purchase confirmed! Check your email for the receipt. 🎉", "success");
+        loadCart();
       } else {
-        setCartItems([]);
+        showMessage(data.error || "Purchase could not be saved after payment.", "error");
       }
-    } catch (err) {
-      console.error(err);
-      setCartItems([]);
+    } catch {
+      showMessage("Network error saving your purchase. Contact support with ref: " + transaction.reference, "error");
+    } finally {
+      setLoading(false);
     }
   }
 
+  function handlePaystackClose() {
+    showMessage("Payment window closed. No charge was made.", "warning");
+  }
+
+  // ── Add to cart ─────────────────────────────────────────────────────────────
   async function handleAddToCart() {
     if (!artwork) return;
     try {
@@ -66,87 +147,68 @@ export default function Purchase() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage("✅ Added to cart");
+        showMessage("Added to cart!", "success");
         loadCart();
       } else {
-        setMessage(data.error || data.message || "❌ Could not add to cart");
+        showMessage(data.error || data.message || "Could not add to cart.", "error");
       }
     } catch {
-      setMessage("❌ Network error adding to cart");
+      showMessage("Network error adding to cart.", "error");
     }
   }
 
-  async function handleConfirmPurchaseImmediate() {
-    if (!paymentMethod) {
-      setMessage("⚠️ Please select a payment method.");
-      return;
-    }
-    if (!artwork) return;
-    try {
-      const res = await fetch(`${API}/purchase`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId,
-          artwork_id: artwork.id,
-          payment_method: paymentMethod,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("✅ Purchase successful — added to your collection.");
-        loadCart();
-      } else {
-        setMessage(data.error || "❌ Purchase failed");
-      }
-    } catch {
-      setMessage("❌ Network error during purchase");
-    }
-  }
-
+  // ── Cart checkout ───────────────────────────────────────────────────────────
   async function handleCheckoutCart() {
     try {
-      const res = await fetch(`${API}/cart/checkout/${userId}`, {
-        method: "POST",
-      });
+      const res = await fetch(`${API}/cart/checkout/${userId}`, { method: "POST" });
       const data = await res.json();
       if (res.ok) {
-        setMessage("✅ Checkout complete — purchases saved.");
+        showMessage("Checkout complete — all purchases saved! 🎉", "success");
         setCartItems([]);
       } else {
-        setMessage(data.error || "❌ Checkout failed");
+        showMessage(data.error || "Checkout failed.", "error");
       }
     } catch {
-      setMessage("❌ Network error during checkout");
+      showMessage("Network error during checkout.", "error");
     }
   }
 
+  // ── Remove cart item ────────────────────────────────────────────────────────
   async function handleRemoveCartItem(cartId) {
     try {
-      const res = await fetch(`${API}/cart/${cartId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`${API}/cart/${cartId}`, { method: "DELETE" });
       if (res.ok) {
-        setMessage("🗑️ Removed from cart");
+        showMessage("Removed from cart.", "success");
         loadCart();
       } else {
         const data = await res.json();
-        setMessage(data.error || "❌ Could not remove item");
+        showMessage(data.error || "Could not remove item.", "error");
       }
     } catch {
-      setMessage("❌ Network error");
+      showMessage("Network error.", "error");
     }
   }
 
+  // ── Message colour helper ───────────────────────────────────────────────────
+  const msgStyle = {
+    success: "bg-green-50 border border-green-200 text-green-800",
+    warning: "bg-yellow-50 border border-yellow-200 text-yellow-800",
+    error: "bg-red-50 border border-red-200 text-red-700",
+  };
+
+  const canPay = !!paymentMethod && !!artwork && !loading;
+
   return (
     <div className="max-w-5xl mx-auto mt-10 p-8 bg-gray-50 rounded-xl shadow-md">
-      <h1 className="text-3xl font-bold mb-6 text-center"> Complete Your Purchase</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">🖼️ Complete Your Purchase</h1>
 
+      {/* ── Artwork + Payment ── */}
       {!artwork ? (
-        <p className="text-center">Loading artwork...</p>
+        <p className="text-center text-gray-500 animate-pulse">Loading artwork...</p>
       ) : (
         <div className="grid md:grid-cols-2 gap-8">
-          
+
+          {/* LEFT: Artwork card */}
           <div className="bg-white p-6 rounded-lg shadow">
             <img
               src={artwork.image_url}
@@ -155,74 +217,121 @@ export default function Purchase() {
               className="w-full h-64 object-cover rounded-lg mb-4"
             />
             <h2 className="text-2xl font-semibold">{artwork.title}</h2>
-            <p className="text-gray-600">by {artwork.artist?.name ?? "Unknown"}</p>
-            <p className="text-xl font-bold mt-2">${artwork.price}</p>
-            <p className="text-green-600 mt-2">✔ Ready for Purchase</p>
-
-
+            <p className="text-gray-500">by {artwork.artist?.name ?? "Unknown"}</p>
+            <p className="text-2xl font-bold mt-2">
+              KES {Number(artwork.price).toLocaleString()}
+            </p>
+            <p className="text-green-600 mt-2 text-sm">✔ Available & Ready for Purchase</p>
+            <button
+              onClick={handleAddToCart}
+              className="mt-4 w-full border border-blue-600 text-blue-600 py-2 rounded-lg
+                         hover:bg-blue-50 transition-all duration-200"
+            >
+              🛒 Add to Cart Instead
+            </button>
           </div>
 
-          
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-4">Purchase Information</h3>
-            <div className="space-y-2 mb-4">
-              <p>👤 Buyer: <strong>ID {artwork.id}</strong></p>
-              <p>🩻 Artwork: <strong>{artwork.title}</strong></p>
-              <p>💲 Price: <strong>${artwork.price}</strong></p>
+          {/* RIGHT: Payment form */}
+          <div className="bg-white p-6 rounded-lg shadow flex flex-col justify-between">
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Purchase Information</h3>
+
+              <div className="space-y-2 mb-6 text-sm">
+                <p>
+                  👤 Buyer:{" "}
+                  <strong>{user?.name ?? "Guest (log in for receipt)"}</strong>
+                </p>
+                <p>
+                  📧 Email:{" "}
+                  <strong>{user?.email ?? "—"}</strong>
+                </p>
+                <p>
+                  🖼️ Artwork: <strong>{artwork.title}</strong>
+                </p>
+                <p>
+                  💲 Price:{" "}
+                  <strong>KES {Number(artwork.price).toLocaleString()}</strong>
+                </p>
+              </div>
+
+              {/* Payment method selector */}
+              <div className="mb-6">
+                <label className="block mb-2 font-medium text-sm">
+                  🪪 Select Payment Method
+                </label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="w-full border p-3 rounded-lg bg-gray-50 focus:outline-none
+                             focus:ring-2 focus:ring-blue-400"
+                >
+                  <option value="">— Please select —</option>
+                  <option value="card">💳 Credit / Debit Card</option>
+                  <option value="mpesa">📱 M-Pesa</option>
+                  <option value="paypal">🅿️ PayPal</option>
+                </select>
+                {!paymentMethod && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    You must select a payment method to proceed.
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="mb-6">
-              <label className="block mb-2 font-medium">🪪 Select payment method</label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full border p-2 rounded"
+            {/* Paystack button — only mounts when we have what we need */}
+            {canPay ? (
+              <PaystackButton
+                user={user}
+                artwork={artwork}
+                paymentMethod={paymentMethod}
+                onSuccess={handlePaystackSuccess}
+                onClose={handlePaystackClose}
+                disabled={loading}
+              />
+            ) : (
+              <button
+                disabled
+                className="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold
+                           cursor-not-allowed flex items-center justify-center gap-2"
               >
-                <option value="">Please select</option>
-                <option value="credit">Credit Card</option>
-                <option value="paypal">PayPal</option>
-                <option value="mpesa">M-Pesa</option>
-              </select>
-            </div>
+                🔒 Select a payment method to continue
+              </button>
+            )}
 
-            <button
-              onClick={handleConfirmPurchaseImmediate}
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-            >
-              Confirm Purchase • ${artwork.price}
-            </button>
-
-            <p className="text-sm text-gray-500 mt-4">
-              Note: Once purchased, the artwork will be added to your collection.
-              You will receive a digital certificate and shipping details within 24h.
+            <p className="text-xs text-gray-400 mt-3 text-center">
+              Payments are processed securely by Paystack. You'll receive an email
+              confirmation &amp; digital certificate within 24 hours.
             </p>
           </div>
         </div>
       )}
 
-      
+      {/* ── Cart Section ── */}
       <div className="mt-10 bg-white p-6 rounded-lg shadow">
         <h3 className="text-lg font-semibold mb-4">🛒 Your Cart</h3>
         {cartItems.length === 0 ? (
-          <p className="text-gray-600">No items in cart yet.</p>
+          <p className="text-gray-500 text-sm">No items in cart yet.</p>
         ) : (
           <>
             <ul className="space-y-3 mb-4">
               {cartItems.map((item) => (
                 <li
                   key={item.id}
-                  className="flex justify-between items-center border p-3 rounded"
+                  className="flex justify-between items-center border p-3 rounded-lg
+                             hover:bg-gray-50 transition-colors"
                 >
                   <div>
                     <div className="font-medium">{item.artwork.title}</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-500">
                       by {item.artwork.artist?.name ?? "Unknown"}
                     </div>
-                    <div className="text-sm font-semibold">${item.artwork.price}</div>
+                    <div className="text-sm font-semibold">
+                      KES {Number(item.artwork.price).toLocaleString()}
+                    </div>
                   </div>
                   <button
                     onClick={() => handleRemoveCartItem(item.id)}
-                    className="text-sm text-red-600 hover:underline"
+                    className="text-sm text-red-500 hover:text-red-700 hover:underline transition-colors"
                   >
                     Remove
                   </button>
@@ -233,36 +342,32 @@ export default function Purchase() {
             <div className="flex items-center justify-between">
               <button
                 onClick={handleCheckoutCart}
-                className="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700"
+                className="bg-indigo-600 text-white py-2 px-6 rounded-lg
+                           hover:bg-indigo-700 transition-all duration-200 font-medium"
               >
                 Checkout All
               </button>
-              <div>
-                <span className="font-semibold">Total: </span>
-                <span className="text-lg">
-                  $
+              <div className="text-right">
+                <span className="text-sm text-gray-500">Total</span>
+                <div className="text-xl font-bold">
+                  KES{" "}
                   {cartItems
                     .reduce((sum, it) => sum + (it.artwork?.price || 0), 0)
-                    .toFixed(2)}
-                </span>
+                    .toLocaleString()}
+                </div>
               </div>
             </div>
           </>
         )}
       </div>
 
-      
-      {message && (
+      {/* ── Status Message ── */}
+      {message.text && (
         <div
-          className={`mt-6 text-center text-sm font-medium ${
-            message.startsWith("✅")
-              ? "text-green-700"
-              : message.startsWith("⚠️")
-              ? "text-yellow-600"
-              : "text-red-600"
-          }`}
+          className={`mt-6 text-center text-sm font-medium px-4 py-3 rounded-lg
+                      ${msgStyle[message.type] ?? msgStyle.error}`}
         >
-          {message}
+          {message.text}
         </div>
       )}
     </div>
