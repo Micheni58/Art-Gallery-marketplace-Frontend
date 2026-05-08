@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
+const API = "https://art-gallery-marketplace-backend.onrender.com";
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
@@ -20,7 +22,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await fetch("http://127.0.0.1:5000/logout", {
+      await fetch(`${API}/logout`, {
         method: "POST",
         credentials: "include",
       });
