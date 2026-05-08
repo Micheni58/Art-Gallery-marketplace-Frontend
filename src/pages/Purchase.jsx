@@ -239,7 +239,7 @@ export default function Purchase() {
               <div className="space-y-2 mb-6 text-sm">
                 <p>
                   👤 Buyer:{" "}
-                  <strong>{user?.name ?? "Guest (log in for receipt)"}</strong>
+                  <strong>{user?.userName ?? "Guest (log in for receipt)"}</strong>
                 </p>
                 <p>
                   📧 Email:{" "}
