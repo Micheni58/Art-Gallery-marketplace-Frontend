@@ -65,3 +65,4 @@ cd art-gallery-marketplace-frontend
 npm install
 # or
 yarn install
+ 
